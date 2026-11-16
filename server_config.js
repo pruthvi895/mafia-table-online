@@ -1,1 +1,1 @@
-window.MAFIA_SERVER = 'wss://robust-dsc-enormous-suspension.trycloudflare.com';
+window.MAFIA_SERVER = 'wss://minolta-satisfaction-aaa-published.trycloudflare.com';
