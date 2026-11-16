@@ -1,1 +1,1 @@
-window.MAFIA_SERVER = 'wss://perth-greeting-operational-gpl.trycloudflare.com';
+window.MAFIA_SERVER = 'wss://merry-loans-has-wells.trycloudflare.com';
