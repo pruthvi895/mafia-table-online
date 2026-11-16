@@ -1,1 +1,1 @@
-window.MAFIA_SERVER = 'wss://read-filled-flooring-painting.trycloudflare.com';
+window.MAFIA_SERVER = 'wss://robust-dsc-enormous-suspension.trycloudflare.com';
