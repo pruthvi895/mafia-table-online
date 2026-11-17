@@ -1,2 +1,1 @@
-window.MAFIA_SERVER = 'wss://proven-inclusive-deleted-whatever.trycloudflare.com';
-
+window.MAFIA_SERVER = 'wss://specs-need-associations-property.trycloudflare.com';
