@@ -15,9 +15,32 @@
     if (tiles) return tiles;
     tiles = document.createElement('div');
     tiles.id = 'mafia-video';
-    tiles.style.cssText = 'position:fixed;top:6px;right:6px;display:flex;gap:4px;z-index:50;pointer-events:none;max-width:60vw;flex-wrap:wrap;justify-content:flex-end';
+    tiles.setAttribute('data-testid', 'mafia-video');
+    // Bottom-left, clear of the top bar and the top-right corner. Not a debug overlay.
+    tiles.style.cssText = 'position:fixed;left:10px;bottom:110px;top:auto;right:auto;display:flex;gap:8px;z-index:40;pointer-events:none;max-width:46vw;flex-wrap:wrap;align-items:flex-end';
     document.body.appendChild(tiles);
     return tiles;
+  }
+
+  function addTile(video, name) {
+    var wrap = document.createElement('div');
+    wrap.className = 'mafia-video-tile';
+    wrap.style.cssText = 'position:relative;width:96px;height:72px;border:2px solid #d4ad61;border-radius:8px;overflow:hidden;background:#111;box-shadow:0 2px 8px rgba(0,0,0,0.45)';
+    video.style.cssText = 'width:96px;height:72px;object-fit:cover;display:block;background:#000';
+    var cap = document.createElement('div');
+    cap.textContent = name || 'Player';
+    cap.style.cssText = 'position:absolute;left:0;right:0;bottom:0;padding:2px 4px;font:12px/1.2 sans-serif;color:#f3ead8;background:rgba(0,0,0,0.65);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    wrap.appendChild(video);
+    wrap.appendChild(cap);
+    tileBox().appendChild(wrap);
+    return wrap;
+  }
+
+  function dropTile(video) {
+    if (!video) return;
+    var w = video.parentNode;
+    if (w && w !== tiles && w.className === 'mafia-video-tile') w.remove();
+    else video.remove();
   }
 
   function meter(id, stream) {
@@ -44,13 +67,25 @@
     var c = [];
     for (var pid in V.peers) { var st = V.peers[pid].pc.connectionState; if (st === 'connected') c.push(V.peers[pid].name); }
     V.connected = c;
+    var dock = window.__mafiaVideoDock;
+    if (tiles && dock) {
+      if (dock.hide) {
+        tiles.style.display = 'none';
+      } else if (dock.w) {
+        tiles.style.display = 'flex';
+        tiles.style.left = Math.round(dock.x) + 'px';
+        tiles.style.top = Math.round(dock.y) + 'px';
+        tiles.style.bottom = 'auto';
+        tiles.style.right = 'auto';
+      }
+    }
   }, 250);
 
   function closePeer(id) {
     var p = V.peers[id]; if (!p) return;
     try { p.pc.close(); } catch (e) { }
     if (p.audio) p.audio.remove();
-    if (p.video) p.video.remove();
+    if (p.video) dropTile(p.video);
     delete meters[id]; delete V.peers[id];
   }
 
@@ -68,8 +103,8 @@
       }
       if (e.track.kind === 'video' && !p.video) {
         p.video = document.createElement('video'); p.video.autoplay = true; p.video.muted = true; p.video.playsInline = true;
-        p.video.srcObject = s; p.video.style.cssText = 'width:96px;height:72px;object-fit:cover;border:1px solid #d4ad61;border-radius:6px;background:#000';
-        tileBox().appendChild(p.video);
+        p.video.srcObject = s;
+        addTile(p.video, p.name || 'Player');
       }
     };
     pc.onconnectionstatechange = function () {
@@ -92,6 +127,12 @@
       V.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: video ? { width: 160, height: 120 } : false });
       V.video = !!video; V.status = 'on'; V.muted = false;
       meter('me', V.stream);
+      if (video && !V.localVideo) {
+        V.localVideo = document.createElement('video');
+        V.localVideo.autoplay = true; V.localVideo.muted = true; V.localVideo.playsInline = true;
+        V.localVideo.srcObject = V.stream;
+        addTile(V.localVideo, 'You');
+      }
       V.out.push({ t: 'voice_join', video: !!video });
     } catch (e) { V.status = 'mic blocked (' + e.name + ')'; }
   };
@@ -99,6 +140,8 @@
   V.leave = function () {
     for (var id in V.peers) closePeer(id);
     if (V.stream) V.stream.getTracks().forEach(function (t) { t.stop(); });
+    if (V.localVideo) { dropTile(V.localVideo); V.localVideo = null; }
+    if (tiles && !tiles.childElementCount) { tiles.remove(); tiles = null; }
     V.stream = null; delete meters.me; V.status = 'off'; V.group = '';
     V.out.push({ t: 'voice_leave' });
   };
@@ -139,6 +182,11 @@
   };
 
   V.state = function () {
-    return JSON.stringify({ status: V.status, speaking: V.speaking, connected: V.connected, group: V.group, muted: V.muted, video: V.video, out: V.out.splice(0) });
+    var box = tiles && tiles.isConnected ? tiles.getBoundingClientRect() : null;
+    return JSON.stringify({
+      status: V.status, speaking: V.speaking, connected: V.connected, group: V.group, muted: V.muted, video: V.video,
+      tile: box ? { x: box.x, y: box.y, w: box.width, h: box.height } : null,
+      out: V.out.splice(0)
+    });
   };
 })();
