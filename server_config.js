@@ -1,2 +1,1 @@
-window.MAFIA_SERVER = 'wss://decided-here-printed-carey.trycloudflare.com';
-
+window.MAFIA_SERVER = 'wss://retreat-disc-fabulous-one.trycloudflare.com';
