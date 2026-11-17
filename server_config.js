@@ -1,1 +1,1 @@
-window.MAFIA_SERVER = 'wss://christopher-size-inspections-love.trycloudflare.com';
+window.MAFIA_SERVER = 'wss://sees-byte-ticket-conventional.trycloudflare.com';
