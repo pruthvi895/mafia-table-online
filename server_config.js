@@ -1,2 +1,1 @@
-window.MAFIA_SERVER = 'wss://very-herbal-officially-purchased.trycloudflare.com';
-
+window.MAFIA_SERVER = 'wss://returning-anti-doe-publicly.trycloudflare.com';
