@@ -1,1 +1,1 @@
-window.MAFIA_SERVER = 'wss://sees-byte-ticket-conventional.trycloudflare.com';
+window.MAFIA_SERVER = 'wss://maternity-interactive-universe-proteins.trycloudflare.com';
